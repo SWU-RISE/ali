@@ -5,7 +5,6 @@
 #include<cassert>
 #include "System.h"
 #include "config.h"
-#include "graph.h"
 #include "graph.hpp"
 #include "graphalg.hpp"
 #include "csvReader.hpp"
@@ -19,7 +18,7 @@ using namespace raptor;
    -1 denote failure
 */
 
-int solve( char *filename){
+int solve(const  char *filename){
   ifstream ifs;
   ifs.open(filename, std::ifstream::in);
   if(!ifs.good()){
@@ -31,7 +30,7 @@ int solve( char *filename){
   int numberOfTask=0;
   csv_in>>numberOfWorker;
   csv_in>>numberOfTask;
-    
+  cout<<numberOfWorker<<", "<<numberOfTask<<endl;
   vector<vector<int> > weights;
   int w;
   int maxW=0;
@@ -39,7 +38,7 @@ int solve( char *filename){
   vector<int> temp;
   while(csv_in>>w){
     if(w>maxW){
-      w=maxW;
+      maxW=w;
     }
     temp.push_back(w);
     num++;
@@ -52,7 +51,7 @@ int solve( char *filename){
   ifs.close();
   assert(numberOfWorker==weights.size());
   
-  simple_graph graph;
+  directed_graph<int,int> graph;
   vector<int> srcs, snks, ws;
   vector<int> caps(weights.size(),1);
   for(int i=0; i< numberOfWorker; i++){
@@ -78,20 +77,25 @@ int solve( char *filename){
     caps.push_back(1);
   }
    
-  graph.initial(srcs, snks);
+  graph.initial(srcs, snks, ws);
   vector<vector<int>> split_flows;
   vector<int> flow_sizes;
   int infi_value=maxW*ws.size()+1;
-  maxflow::minCostMaxFlow<simple_graph, vector<int>, vector<int>, int, int>(graph,
+  pair<int,int>r=  maxflow::minCostMaxFlow<directed_graph<int,int>, vector<int>, vector<int>, int, int>(graph,
                                                                             source, target, ws, caps,  split_flows, flow_sizes , infi_value);
+  cout<<"success: "<<r.first<<", cost "<<r.second<<endl;
   
   return 0;
 
 }
 
-int main(){
-  solve("ss");
-  cout<<"Hello World"<<endl;
-  return 0;
 
+int main(int argc, char ** argv){
+  if(argc<2){
+    cout<<"You must set the file for network"<<endl;
+  }
+  cout<<argv[1]<<endl;
+  return solve(argv[1]);
+
+  
 }

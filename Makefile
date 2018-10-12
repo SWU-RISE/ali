@@ -42,7 +42,7 @@ COPTIMIZE ?= -O2
 CFLAGS    += -I  ../raptor/include 
 
 
-LFLAGS    += -L ../raptor/  -lraptor -lm -lpthread
+LFLAGS    +=  -lm -lpthread
 
 
 .PHONY : all s p d r c rs clean 

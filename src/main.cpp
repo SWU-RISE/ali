@@ -162,7 +162,7 @@ int solve(char * filename){
   VD temp;
   while(csv_in>>w){
     if(w>maxW){
-      w=maxW;
+      maxW=w;
     }
     temp.push_back(w);
     num++;
@@ -178,8 +178,9 @@ int solve(char * filename){
   VI lmate, rmate;
   int minCost=MinCostMatching(cost, lmate, rmate);
   cout<<"Minimum cost: "<<minCost<<endl;
+  assert(lmate.size()==rmate.size());
   for(size_t i=0; i< lmate.size(); i++){
-    cout<<"Worker: "<<lmate[i]+1<<" do task: "<<rmate[i]+1<<endl;
+    cout<<"Worker: "<<i+1<<" do task: "<<lmate[i]+1<<endl;
   }
   return 0;
 
