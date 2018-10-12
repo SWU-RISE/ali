@@ -1,0 +1,97 @@
+
+#include<iostream>
+#include <fstream>
+#include<vector>
+#include<cassert>
+#include "System.h"
+#include "config.h"
+#include "graph.h"
+#include "graph.hpp"
+#include "graphalg.hpp"
+#include "csvReader.hpp"
+
+using namespace std;
+using namespace raptor;
+
+/**
+   return
+   0 denote success
+   -1 denote failure
+*/
+
+int solve( char *filename){
+  ifstream ifs;
+  ifs.open(filename, std::ifstream::in);
+  if(!ifs.good()){
+    cout<<filename<<" can not open"<<endl;
+    return -1;
+  }
+  csv_istream csv_in(ifs);
+  int numberOfWorker =0;
+  int numberOfTask=0;
+  csv_in>>numberOfWorker;
+  csv_in>>numberOfTask;
+    
+  vector<vector<int> > weights;
+  int w;
+  int maxW=0;
+  int num=0;
+  vector<int> temp;
+  while(csv_in>>w){
+    if(w>maxW){
+      w=maxW;
+    }
+    temp.push_back(w);
+    num++;
+    if(num==numberOfTask){
+      weights.push_back(temp);
+      temp.clear();
+      num=0;
+    }
+  }
+  ifs.close();
+  assert(numberOfWorker==weights.size());
+  
+  simple_graph graph;
+  vector<int> srcs, snks, ws;
+  vector<int> caps(weights.size(),1);
+  for(int i=0; i< numberOfWorker; i++){
+    for(int j=0; j< numberOfTask; j++){
+      srcs.push_back(i);
+      snks.push_back(j+numberOfWorker); // differ work node and task node
+      ws.push_back(maxW+1-weights[i][j]);
+    }
+  }
+
+  int source=numberOfWorker+numberOfTask;
+  int target=numberOfWorker+numberOfTask+1;
+  for(int i=0; i<numberOfWorker; i++){
+    srcs.push_back(source);
+    snks.push_back(i); 
+    ws.push_back(1);
+    caps.push_back(1);
+  }
+  for(int i=0; i< numberOfTask; i++){
+    srcs.push_back(i+numberOfWorker);
+    snks.push_back(target);
+    ws.push_back(1);
+    caps.push_back(1);
+  }
+   
+  graph.initial(srcs, snks);
+  vector<vector<int>> split_flows;
+  vector<int> flow_sizes;
+  int infi_value=maxW*ws.size()+1;
+  maxflow::minCostMaxFlow<simple_graph, vector<int>, vector<int>, int, int>(graph,
+                                                                            source, target, ws, caps,  split_flows, flow_sizes , infi_value);
+  
+  return 0;
+
+}
+
+int main(){
+  solve("ss");
+  cout<<"Hello World"<<endl;
+  return 0;
+
+}
