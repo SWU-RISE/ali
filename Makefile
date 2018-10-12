@@ -39,7 +39,7 @@ endif
 
 COPTIMIZE ?= -O2 
 
-CFLAGS    += -I  ../raptor/include 
+CFLAGS    += -I  include 
 
 
 LFLAGS    +=  -lm -lpthread
